@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 type UploadResult = {
   downloadUrl: string;
@@ -325,42 +326,48 @@ export default function HomePage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 grid-bg" />
+      <div className="orb orb-1 animate-float left-[-4rem] top-10 h-56 w-56" />
+      <div className="orb orb-2 animate-float-slow right-[-3rem] top-24 h-64 w-64" />
+      <div className="orb orb-3 bottom-10 left-1/3 h-52 w-52" />
 
-      <header className="relative z-10 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl">
+      <header className="bg-header relative z-10 border-b backdrop-blur-2xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-cyan-400 shadow-lg shadow-violet-500/25">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 via-indigo-500 to-cyan-400 shadow-lg shadow-violet-500/30">
               <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </div>
             <div>
-              <p className="text-sm font-semibold tracking-tight text-slate-900">Kie Video Studio</p>
-              <p className="text-xs text-slate-500">AI talking video generator</p>
+              <p className="text-ink text-sm font-bold tracking-tight">Kie Video Studio</p>
+              <p className="text-muted text-xs font-medium">AI talking video generator</p>
             </div>
           </div>
-          <div className="hidden items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-700 sm:flex">
-            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
-            System online
+          <div className="flex items-center gap-3">
+            <div className="badge-online hidden items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold sm:flex">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+              System online
+            </div>
+            <ThemeToggle />
           </div>
         </div>
       </header>
 
       <main className="relative z-10 mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
         <section className="mb-10 max-w-3xl">
-          <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-3 py-1 text-xs font-medium text-violet-700">
+          <p className="chip mb-4 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs font-semibold backdrop-blur">
+            <span className="h-1.5 w-1.5 rounded-full bg-gradient-to-r from-violet-400 to-cyan-400" />
             Powered by Kie AI
           </p>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900 sm:text-5xl">
-            Create cinematic talking videos
-            <span className="block bg-gradient-to-r from-violet-600 via-indigo-500 to-cyan-600 bg-clip-text text-transparent">
-              in a few simple steps
+          <h1 className="text-ink text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
+            Create cinematic
+            <span className="mt-1 block bg-gradient-to-r from-violet-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent">
+              talking videos
             </span>
           </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
-            Upload a portrait image, attach an audio track, describe the scene, and generate a
-            professional talking video. Files are uploaded only when you click Generate.
+          <p className="text-soft mt-5 max-w-2xl text-sm leading-relaxed sm:text-base">
+            Upload a portrait, add your voice track, describe the scene, and generate a polished
+            talking video in minutes. Beautiful results, simple workflow.
           </p>
         </section>
 
@@ -372,65 +379,61 @@ export default function HomePage() {
             return (
               <div
                 key={item.id}
-                className={`surface rounded-2xl p-4 transition ${
-                  done
-                    ? "border-emerald-200 bg-emerald-50"
-                    : active
-                      ? "border-violet-200 bg-violet-50"
-                      : "opacity-80"
+                className={`step-card surface rounded-2xl p-4 ${
+                  done ? "done" : active ? "active" : ""
                 }`}
               >
                 <div className="mb-3 flex items-center justify-between">
                   <div
-                    className={`flex h-9 w-9 items-center justify-center rounded-xl ${
+                    className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                       done
-                        ? "bg-emerald-100 text-emerald-700"
+                        ? "step-icon-done"
                         : active
-                          ? "bg-violet-100 text-violet-700"
-                          : "bg-slate-100 text-slate-500"
+                          ? "step-icon-active"
+                          : "step-icon-idle"
                     }`}
                   >
                     {done ? (
-                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.2}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     ) : (
                       <StepIcon step={item.id} />
                     )}
                   </div>
-                  <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">
+                  <span className="text-muted text-[11px] font-bold uppercase tracking-[0.16em]">
                     Step {item.id}
                   </span>
                 </div>
-                <p className="text-sm font-semibold text-slate-900">{item.label}</p>
-                <p className="mt-1 text-xs text-slate-500">{item.description}</p>
+                <p className="text-ink text-sm font-bold">{item.label}</p>
+                <p className="text-muted mt-1 text-xs">{item.description}</p>
               </div>
             );
           })}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-          <form onSubmit={handleSubmit} className="surface rounded-3xl p-5 sm:p-8">
-            <div className="mb-6 flex items-center justify-between gap-3">
+          <form onSubmit={handleSubmit} className="surface surface-glow rounded-[1.75rem] p-5 sm:p-8">
+            <div className="mb-7 flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-slate-900">Project setup</h2>
-                <p className="mt-1 text-sm text-slate-500">Complete each step in order.</p>
+                <h2 className="text-ink text-lg font-bold">Project setup</h2>
+                <p className="text-muted mt-1 text-sm">Complete each step in order.</p>
               </div>
-              <span className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-600">
+              <span className="chip rounded-full px-3.5 py-1 text-xs font-semibold">
                 {flowStep}/4 ready
               </span>
             </div>
 
             <section>
-              <div className="mb-3 flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700">
+              <div className="mb-3 flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-500 text-xs font-bold text-white shadow-md shadow-violet-500/30">
                   1
                 </span>
-                <h3 className="text-sm font-semibold text-slate-900">Select image</h3>
+                <h3 className="text-ink text-sm font-bold">Select image</h3>
               </div>
 
               <label
-                className={`dropzone group flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 p-5 text-center ${
+                className={`dropzone group flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-5 text-center ${
                   imageFile ? "has-file" : ""
                 }`}
               >
@@ -446,19 +449,19 @@ export default function HomePage() {
                   <img
                     src={imagePreview}
                     alt="Selected image preview"
-                    className="mb-3 h-40 w-full rounded-xl object-cover"
+                    className="mb-3 h-40 w-full rounded-2xl object-cover shadow-md"
                   />
                 ) : (
-                  <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-100 text-violet-600">
+                  <div className="step-icon-active mb-3 flex h-14 w-14 items-center justify-center rounded-2xl">
                     <StepIcon step={1} />
                   </div>
                 )}
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-ink text-sm font-bold">
                   {imageFile ? "Image selected — click to change" : "Click to upload image"}
                 </p>
-                <p className="mt-1 text-xs text-slate-500">JPG, PNG, WebP · Max 10MB</p>
+                <p className="text-muted mt-1 text-xs">JPG, PNG, WebP · Max 10MB</p>
                 {imageFile && (
-                  <p className="mt-2 text-xs text-cyan-700">
+                  <p className="text-accent mt-2 text-xs font-medium">
                     {imageFile.name} · {formatBytes(imageFile.size)}
                   </p>
                 )}
@@ -467,15 +470,15 @@ export default function HomePage() {
 
             {imageFile && (
               <section className="mt-8 animate-fade-up">
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-100 text-xs font-bold text-cyan-700">
+                <div className="mb-3 flex items-center gap-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-violet-500 text-xs font-bold text-white shadow-md shadow-cyan-500/20">
                     2
                   </span>
-                  <h3 className="text-sm font-semibold text-slate-900">Select audio</h3>
+                  <h3 className="text-ink text-sm font-bold">Select audio</h3>
                 </div>
 
                 <label
-                  className={`dropzone group flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/60 p-5 text-center ${
+                  className={`dropzone group flex min-h-44 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-5 text-center ${
                     audioFile ? "has-file" : ""
                   }`}
                 >
@@ -486,16 +489,16 @@ export default function HomePage() {
                     disabled={isLoading}
                     onChange={(e) => handleAudioSelect(e.target.files?.[0] || null)}
                   />
-                  <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-100 text-cyan-700">
+                  <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/15 text-cyan-500">
                     <StepIcon step={2} />
                   </div>
-                  <p className="text-sm font-semibold text-slate-900">
+                  <p className="text-ink text-sm font-bold">
                     {audioFile ? "Audio selected — click to change" : "Click to upload audio"}
                   </p>
-                  <p className="mt-1 text-xs text-slate-500">MP3, WAV, AAC, OGG · Max 10MB</p>
+                  <p className="text-muted mt-1 text-xs">MP3, WAV, AAC, OGG · Max 10MB</p>
                   {audioFile && (
                     <>
-                      <p className="mt-2 text-xs text-cyan-700">
+                      <p className="text-accent-2 mt-2 text-xs font-medium">
                         {audioFile.name} · {formatBytes(audioFile.size)}
                       </p>
                       {audioPreview && (
@@ -514,11 +517,11 @@ export default function HomePage() {
 
             {imageFile && audioFile && (
               <section className="mt-8 animate-fade-up">
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-pink-100 text-xs font-bold text-pink-700">
+                <div className="mb-3 flex items-center gap-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-400 to-violet-500 text-xs font-bold text-white shadow-md shadow-indigo-500/25">
                     3
                   </span>
-                  <h3 className="text-sm font-semibold text-slate-900">Write prompt</h3>
+                  <h3 className="text-ink text-sm font-bold">Write prompt</h3>
                 </div>
 
                 <textarea
@@ -527,24 +530,24 @@ export default function HomePage() {
                   rows={4}
                   disabled={isLoading}
                   placeholder="Example: A young woman with long dark hair speaking on a podcast, natural expressions, cinematic lighting..."
-                  className="w-full resize-none rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none ring-violet-500/30 placeholder:text-slate-400 focus:ring-2 disabled:opacity-60"
+                  className="field w-full resize-none rounded-2xl px-4 py-3.5 text-sm outline-none ring-violet-500/30 focus:ring-2 disabled:opacity-60"
                 />
               </section>
             )}
 
             {canGenerate && (
               <div className="mt-8 animate-fade-up">
-                <div className="mb-3 flex items-center gap-2">
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
+                <div className="mb-3 flex items-center gap-2.5">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-cyan-500 text-xs font-bold text-white shadow-md shadow-emerald-500/20">
                     4
                   </span>
-                  <h3 className="text-sm font-semibold text-slate-900">Generate video</h3>
+                  <h3 className="text-ink text-sm font-bold">Generate video</h3>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="btn-primary flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-semibold text-white transition"
+                  className="btn-primary flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-bold text-white transition"
                 >
                   {isLoading ? (
                     <>
@@ -563,18 +566,18 @@ export default function HomePage() {
           </form>
 
           <aside className="space-y-6">
-            <div className="surface rounded-3xl p-5 sm:p-6">
+            <div className="surface surface-glow rounded-[1.75rem] p-5 sm:p-6">
               <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-slate-900">Generation status</h2>
+                <h2 className="text-ink text-lg font-bold">Generation status</h2>
                 <span
-                  className={`rounded-full px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+                  className={`rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wide ${
                     apiStep === "success"
-                      ? "bg-emerald-50 text-emerald-700"
+                      ? "badge-success"
                       : apiStep === "error"
-                        ? "bg-rose-50 text-rose-700"
+                        ? "badge-error"
                         : apiStep === "processing"
-                          ? "bg-violet-50 text-violet-700"
-                          : "bg-slate-100 text-slate-600"
+                          ? "badge-processing"
+                          : "badge-idle"
                   }`}
                 >
                   {statusLabel}
@@ -585,58 +588,58 @@ export default function HomePage() {
                 <div
                   className={`rounded-2xl border p-4 text-sm ${
                     apiStep === "error"
-                      ? "border-rose-200 bg-rose-50 text-rose-800"
+                      ? "status-error"
                       : apiStep === "success"
-                        ? "border-emerald-200 bg-emerald-50 text-emerald-800"
-                        : "border-slate-200 bg-slate-50 text-slate-700"
+                        ? "status-success"
+                        : "status-processing"
                   }`}
                 >
                   {apiStep === "processing" && (
-                    <div className="mb-3 flex items-center gap-2 text-violet-700">
-                      <span className="pulse-ring h-2.5 w-2.5 rounded-full bg-violet-500" />
+                    <div className="text-accent mb-3 flex items-center gap-2 font-semibold">
+                      <span className="pulse-ring h-2.5 w-2.5 rounded-full bg-violet-400" />
                       Waiting for video result
                     </div>
                   )}
                   {message && <p className="font-medium leading-relaxed">{message}</p>}
                   {taskId && (
-                    <p className="mt-3 break-all text-xs text-slate-600">
+                    <p className="text-muted mt-3 break-all text-xs">
                       Task ID:{" "}
-                      <span className="font-mono text-violet-700">{taskId}</span>
+                      <span className="text-accent font-mono font-semibold">{taskId}</span>
                     </p>
                   )}
                 </div>
               ) : (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center">
-                  <p className="text-sm text-slate-500">
+                <div className="panel rounded-2xl border border-dashed px-4 py-10 text-center">
+                  <p className="text-muted text-sm">
                     Your generation progress and video preview will appear here.
                   </p>
                 </div>
               )}
             </div>
 
-            <div className="surface overflow-hidden rounded-3xl">
+            <div className="surface overflow-hidden rounded-[1.75rem]">
               {videoUrl ? (
                 <>
-                  <video src={videoUrl} controls className="aspect-video w-full bg-slate-900" />
-                  <div className="flex items-center justify-between gap-3 border-t border-slate-200 px-4 py-3">
-                    <p className="truncate text-xs text-slate-600">{videoUrl}</p>
+                  <video src={videoUrl} controls className="aspect-video w-full bg-black" />
+                  <div className="footer-line flex items-center justify-between gap-3 border-t px-4 py-3">
+                    <p className="text-muted truncate text-xs">{videoUrl}</p>
                     <a
                       href={videoUrl}
                       target="_blank"
                       rel="noreferrer"
-                      className="shrink-0 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-800 transition hover:bg-slate-200"
+                      className="shrink-0 rounded-xl bg-gradient-to-r from-violet-500 to-cyan-500 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm transition hover:opacity-90"
                     >
                       Open
                     </a>
                   </div>
                 </>
               ) : (
-                <div className="flex aspect-video flex-col items-center justify-center bg-slate-50 px-6 text-center">
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+                <div className="preview-empty flex aspect-video flex-col items-center justify-center px-6 text-center">
+                  <div className="icon-box text-accent mb-3 flex h-14 w-14 items-center justify-center rounded-2xl">
                     <StepIcon step={4} />
                   </div>
-                  <p className="text-sm font-medium text-slate-700">Video preview</p>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="text-ink text-sm font-bold">Video preview</p>
+                  <p className="text-muted mt-1 text-xs">
                     The finished video will play here once generation completes.
                   </p>
                 </div>
@@ -644,11 +647,11 @@ export default function HomePage() {
             </div>
 
             {statusRaw && (
-              <details className="surface rounded-3xl p-4">
-                <summary className="cursor-pointer text-xs font-medium text-slate-600">
+              <details className="surface rounded-[1.75rem] p-4">
+                <summary className="text-soft cursor-pointer text-xs font-semibold">
                   API status response
                 </summary>
-                <pre className="mt-3 overflow-x-auto text-[11px] leading-relaxed text-slate-500">
+                <pre className="text-muted mt-3 overflow-x-auto text-[11px] leading-relaxed">
                   {statusRaw}
                 </pre>
               </details>
@@ -656,7 +659,7 @@ export default function HomePage() {
           </aside>
         </div>
 
-        <footer className="mt-10 border-t border-slate-200 pt-6 text-center text-xs text-slate-500">
+        <footer className="footer-line text-muted mt-12 border-t pt-6 text-center text-xs">
           Selecting files does not call any API. All uploads and generation start only when you click
           Generate Video.
         </footer>
