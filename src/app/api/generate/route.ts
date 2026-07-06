@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authHeaders, getKieConfig } from "@/lib/kie";
+import {
+  authHeaders,
+  extractTaskId,
+  getKieConfig,
+  isKieSuccess,
+  kieErrorMessage,
+} from "@/lib/kie";
 
 export const runtime = "nodejs";
 
@@ -34,6 +40,7 @@ export async function POST(request: NextRequest) {
         image_url: imageUrl,
         audio_url: audioUrl,
         prompt,
+        resolution: "480p",
       },
     };
 
@@ -48,27 +55,56 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json().catch(() => null);
 
-    if (!response.ok) {
+    if (!isKieSuccess(data, response.ok)) {
+      const status =
+        response.ok && data && typeof data === "object" && "code" in data
+          ? Number((data as { code?: unknown }).code) || 502
+          : response.status || 502;
+
       return NextResponse.json(
         {
           success: false,
-          msg: data?.msg || data?.message || "Failed to create video task",
+          msg: kieErrorMessage(data, "Failed to create video task"),
           data,
         },
-        { status: response.status }
+        { status: status >= 400 && status < 600 ? status : 502 }
       );
     }
 
-    const taskId = data?.data?.taskId || data?.taskId;
+    const taskId = extractTaskId(data);
+
+    if (!taskId) {
+      return NextResponse.json(
+        {
+          success: false,
+          msg: kieErrorMessage(
+            data,
+            "Kie API did not return a task ID. Check your API token and credits."
+          ),
+          data,
+        },
+        { status: 502 }
+      );
+    }
+
+    const responseData =
+      data && typeof data === "object" && "data" in data
+        ? ((data as { data?: Record<string, unknown> }).data ?? {})
+        : {};
 
     return NextResponse.json({
       success: true,
-      code: data?.code ?? 200,
-      msg: data?.msg || "Video generation started",
+      code: 200,
+      msg:
+        (data &&
+          typeof data === "object" &&
+          typeof (data as { msg?: unknown }).msg === "string" &&
+          (data as { msg: string }).msg) ||
+        "Video generation started",
       data: {
+        ...(typeof responseData === "object" && responseData ? responseData : {}),
         taskId,
         model,
-        ...data?.data,
       },
     });
   } catch (error) {

@@ -1,5 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authHeaders, getKieConfig } from "@/lib/kie";
+import {
+  authHeaders,
+  getKieConfig,
+  isKieSuccess,
+  kieErrorMessage,
+} from "@/lib/kie";
 
 export const runtime = "nodejs";
 
@@ -28,22 +33,35 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json().catch(() => null);
 
-    if (!response.ok) {
+    if (!isKieSuccess(data, response.ok)) {
+      const status =
+        response.ok && data && typeof data === "object" && "code" in data
+          ? Number((data as { code?: unknown }).code) || 502
+          : response.status || 502;
+
       return NextResponse.json(
         {
           success: false,
-          msg: data?.msg || data?.message || "Failed to fetch task status",
+          msg: kieErrorMessage(data, "Failed to fetch task status"),
           data,
         },
-        { status: response.status }
+        { status: status >= 400 && status < 600 ? status : 502 }
       );
     }
 
     return NextResponse.json({
       success: true,
-      code: data?.code ?? 200,
-      msg: data?.msg || "ok",
-      data: data?.data ?? data,
+      code: 200,
+      msg:
+        (data &&
+          typeof data === "object" &&
+          typeof (data as { msg?: unknown }).msg === "string" &&
+          (data as { msg: string }).msg) ||
+        "ok",
+      data:
+        data && typeof data === "object" && "data" in data
+          ? (data as { data: unknown }).data
+          : data,
     });
   } catch (error) {
     const message =

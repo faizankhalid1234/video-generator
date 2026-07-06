@@ -19,10 +19,23 @@ type ApiStep =
 
 const POLL_INTERVAL_MS = 10_000;
 
+const DEFAULT_PROMPT = `Create a realistic AI avatar video.
+
+Input:
+- One front-facing portrait image of a person.
+- One audio file containing speech.
+
+Requirements:
+- Keep the person's identity and facial features unchanged.
+- Synchronize lip movements accurately with the audio.
+- Preserve natural eye blinking and subtle facial expressions.
+- Do not alter clothing or background.
+- Export as an MP4 video in the highest available quality.`;
+
 const FLOW_STEPS = [
   { id: 1, label: "Image", description: "Upload portrait" },
   { id: 2, label: "Audio", description: "Add voice track" },
-  { id: 3, label: "Prompt", description: "Describe scene" },
+  { id: 3, label: "Prompt", description: "Avatar settings" },
   { id: 4, label: "Generate", description: "Create video" },
 ] as const;
 
@@ -106,7 +119,7 @@ function StepIcon({ step }: { step: number }) {
 export default function HomePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [audioFile, setAudioFile] = useState<File | null>(null);
-  const [prompt, setPrompt] = useState("");
+  const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
   const [apiStep, setApiStep] = useState<ApiStep>("idle");
   const [message, setMessage] = useState("");
   const [taskId, setTaskId] = useState<string | null>(null);
@@ -164,13 +177,13 @@ export default function HomePage() {
   function handleImageSelect(file: File | null) {
     setImageFile(file);
     setAudioFile(null);
-    setPrompt("");
+    setPrompt(DEFAULT_PROMPT);
     resetResult();
   }
 
   function handleAudioSelect(file: File | null) {
     setAudioFile(file);
-    setPrompt("");
+    setPrompt(DEFAULT_PROMPT);
     resetResult();
   }
 
@@ -285,12 +298,33 @@ export default function HomePage() {
 
       const generateData = await generateResponse.json();
       if (!generateResponse.ok || !generateData.success) {
-        throw new Error(generateData.msg || "Failed to start video generation");
+        const apiMsg =
+          generateData.msg ||
+          generateData.data?.msg ||
+          "Failed to start video generation";
+        const isCreditsError =
+          generateResponse.status === 402 ||
+          String(apiMsg).toLowerCase().includes("credit");
+
+        throw new Error(
+          isCreditsError
+            ? "Kie AI credits are insufficient. Please top up your balance at kie.ai, then try again."
+            : apiMsg
+        );
       }
 
-      const id = generateData.data?.taskId as string | undefined;
+      const id =
+        (generateData.data?.taskId as string | undefined) ||
+        (generateData.data?.task_id as string | undefined) ||
+        (generateData.data?.recordId as string | undefined) ||
+        (generateData.data?.record_id as string | undefined) ||
+        (generateData.taskId as string | undefined);
+
       if (!id) {
-        throw new Error("Task ID was not returned. Please try again.");
+        throw new Error(
+          generateData.msg ||
+            "Kie API did not return a task ID. Check your API token and credits."
+        );
       }
 
       setTaskId(id);
@@ -527,10 +561,9 @@ export default function HomePage() {
                 <textarea
                   value={prompt}
                   onChange={(e) => handlePromptChange(e.target.value)}
-                  rows={4}
+                  rows={12}
                   disabled={isLoading}
-                  placeholder="Example: A young woman with long dark hair speaking on a podcast, natural expressions, cinematic lighting..."
-                  className="field w-full resize-none rounded-2xl px-4 py-3.5 text-sm outline-none ring-violet-500/30 focus:ring-2 disabled:opacity-60"
+                  className="field w-full resize-y rounded-2xl px-4 py-3.5 text-sm leading-relaxed outline-none ring-violet-500/30 focus:ring-2 disabled:opacity-60"
                 />
               </section>
             )}

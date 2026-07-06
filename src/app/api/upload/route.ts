@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authHeaders, getKieConfig } from "@/lib/kie";
+import {
+  authHeaders,
+  extractDownloadUrl,
+  getKieConfig,
+  isKieSuccess,
+  kieErrorMessage,
+} from "@/lib/kie";
 
 export const runtime = "nodejs";
 
@@ -31,21 +37,23 @@ export async function POST(request: NextRequest) {
 
     const data = await response.json().catch(() => null);
 
-    if (!response.ok) {
+    if (!isKieSuccess(data, response.ok)) {
+      const status =
+        response.ok && data && typeof data === "object" && "code" in data
+          ? Number((data as { code?: unknown }).code) || 502
+          : response.status || 502;
+
       return NextResponse.json(
         {
           success: false,
-          msg: data?.msg || data?.message || "File upload failed",
+          msg: kieErrorMessage(data, "File upload failed"),
           data,
         },
-        { status: response.status }
+        { status: status >= 400 && status < 600 ? status : 502 }
       );
     }
 
-    const downloadUrl =
-      data?.data?.downloadUrl ||
-      data?.downloadUrl ||
-      data?.data?.data?.downloadUrl;
+    const downloadUrl = extractDownloadUrl(data);
 
     if (!downloadUrl) {
       return NextResponse.json(
@@ -58,17 +66,46 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const responseData =
+      data && typeof data === "object" && "data" in data
+        ? ((data as { data?: Record<string, unknown> }).data ?? {})
+        : {};
+
     return NextResponse.json({
       success: true,
-      code: data?.code ?? 200,
-      msg: data?.msg || "File uploaded successfully",
+      code: 200,
+      msg:
+        (data &&
+          typeof data === "object" &&
+          typeof (data as { msg?: unknown }).msg === "string" &&
+          (data as { msg: string }).msg) ||
+        "File uploaded successfully",
       data: {
-        fileName: data?.data?.fileName || fileName,
-        filePath: data?.data?.filePath,
+        fileName:
+          (typeof responseData === "object" &&
+            responseData &&
+            typeof responseData.fileName === "string" &&
+            responseData.fileName) ||
+          fileName,
+        filePath:
+          typeof responseData === "object" && responseData
+            ? responseData.filePath
+            : undefined,
         downloadUrl,
-        fileSize: data?.data?.fileSize,
-        mimeType: data?.data?.mimeType || file.type,
-        uploadedAt: data?.data?.uploadedAt,
+        fileSize:
+          typeof responseData === "object" && responseData
+            ? responseData.fileSize
+            : undefined,
+        mimeType:
+          (typeof responseData === "object" &&
+            responseData &&
+            typeof responseData.mimeType === "string" &&
+            responseData.mimeType) ||
+          file.type,
+        uploadedAt:
+          typeof responseData === "object" && responseData
+            ? responseData.uploadedAt
+            : undefined,
       },
     });
   } catch (error) {
